@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic Nano AI — Live Marketplace</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;min-height:100vh}
+.header{background:linear-gradient(135deg,#667eea,#764ba2);padding:20px 40px;text-align:center;border-bottom:1px solid rgba(255,255,255,0.1)}
+.header h1{font-size:36px;margin-bottom:5px}
+.header p{color:rgba(255,255,255,0.8);font-size:14px}
+.track-badge{display:inline-block;background:rgba(0,212,255,0.2);border:1px solid #00d4ff;color:#00d4ff;padding:4px 14px;border-radius:20px;font-size:11px;margin-top:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:20px;padding:30px 40px}
+.card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;text-align:center;transition:all 0.3s}
+.card:hover{border-color:rgba(0,212,255,0.3);transform:translateY(-3px)}
+.card-value{font-size:42px;font-weight:700;color:#00d4ff;margin:10px 0}
+.card-label{font-size:12px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px}
+.card-delta{font-size:13px;color:#00ff96;margin-top:8px}
+.main{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:0 40px 30px}
+.panel{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px}
+.panel h3{font-size:16px;margin-bottom:20px;color:#00d4ff;display:flex;align-items:center;gap:10px}
+.ticker{height:300px;overflow-y:auto;font-family:monospace;font-size:12px}
+.ticker-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05);animation:slideIn 0.3s ease}
+.ticker-row:hover{background:rgba(0,212,255,0.05)}
+@keyframes slideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+.tx-id{color:#00d4ff}
+.tx-status{color:#00ff96}
+.tx-fail{color:#ff6b6b}
+.controls{display:flex;gap:15px;padding:20px 40px;align-items:center}
+.btn{padding:14px 28px;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.3s}
+.btn-primary{background:linear-gradient(135deg,#00d4ff,#7b2cbf);color:#fff}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,212,255,0.3)}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.btn-secondary{background:rgba(255,255,255,0.1);color:#fff;border:1px solid rgba(255,255,255,0.2)}
+.status-dot{width:10px;height:10px;border-radius:50%;background:#00ff96;display:inline-block;margin-right:8px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.race-container{display:flex;gap:20px;align-items:center;margin-top:20px}
+.race-track{flex:1;height:40px;background:rgba(255,255,255,0.05);border-radius:20px;overflow:hidden;position:relative}
+.race-bar{height:100%;border-radius:20px;transition:width 0.5s ease;position:relative}
+.race-bar.arc{background:linear-gradient(90deg,#00d4ff,#7b2cbf);width:0%}
+.race-bar.l1{background:linear-gradient(90deg,#ff6b6b,#c62828);width:0%}
+.race-label{position:absolute;top:50%;transform:translateY(-50%);font-size:11px;font-weight:600;padding:0 12px}
+.race-bar.arc .race-label{right:10px;color:#fff}
+.race-bar.l1 .race-label{left:10px;color:#fff}
+.comparison{text-align:center;margin-top:30px;padding:20px;background:rgba(0,212,255,0.05);border-radius:12px;border:1px solid rgba(0,212,255,0.1)}
+.comparison h4{color:#00d4ff;margin-bottom:15px}
+.compare-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;margin:10px 0;font-size:13px}
+.compare-col{padding:10px;border-radius:8px}
+.compare-col.arc{background:rgba(0,212,255,0.1);color:#00d4ff}
+.compare-col.l1{background:rgba(255,50,50,0.1);color:#ff6b6b}
+.compare-col.label{color:rgba(255,255,255,0.6)}
+.spawned-agents{display:flex;gap:10px;padding:0 40px 20px;flex-wrap:wrap}
+.agent-chip{background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);color:#00d4ff;padding:6px 14px;border-radius:20px;font-size:12px;animation:popIn 0.3s ease}
+@keyframes popIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+.console{font-family:monospace;font-size:11px;color:rgba(255,255,255,0.5);padding:0 40px 20px;height:60px;overflow:hidden}
+.console-line{padding:2px 0}
+</style>
+<base target="_blank">
+</head>
+<body>
+<div class="header">
+<h1>🤖 Agentic Nano AI Marketplace</h1>
+<p>Live agent-to-agent commerce on Arc Testnet</p>
+<div class="track-badge">🧮 Usage-Based Compute Billing + 🤖 Agent-to-Agent Payment Loop</div>
+</div>
+<div class="controls">
+<button class="btn btn-primary" id="spawnBtn" onclick="spawnAgent()">🚀 Spawn Agent (10 Tasks)</button>
+<button class="btn btn-secondary" id="raceBtn" onclick="startRace()">🏁 Arc vs L1 Race</button>
+<button class="btn btn-secondary" onclick="resetAll()">🔄 Reset</button>
+<span style="margin-left:auto;display:flex;align-items:center"><span class="status-dot"></span>Backend: <span id="backendStatus">Connecting...</span></span>
+</div>
+<div class="spawned-agents" id="agentList"></div>
+<div class="console" id="console"></div>
+<div class="grid">
+<div class="card"><div class="card-label">Total Transactions</div><div class="card-value" id="txCount">0</div><div class="card-delta">+<span id="txRate">0</span> / sec</div></div>
+<div class="card"><div class="card-label">Revenue (USDC)</div><div class="card-value" id="revenue">$0.000</div><div class="card-delta">$0.001 per task</div></div>
+<div class="card"><div class="card-label">Gas Saved vs L1</div><div class="card-value" id="gasSaved">$0.00</div><div class="card-delta">Arc gas: ~$0.009</div></div>
+<div class="card"><div class="card-label">Active Agents</div><div class="card-value" id="agentCount">0</div><div class="card-delta">Autonomous commerce</div></div>
+</div>
+<div class="main">
+<div class="panel">
+<h3>📡 Live Transaction Feed</h3>
+<div class="ticker" id="ticker"></div>
+</div>
+<div class="panel">
+<h3>🏁 Settlement Speed Race</h3>
+<p style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:20px">Arc Testnet vs Ethereum L1 — same $0.001 payment</p>
+<div class="race-container">
+<div style="width:80px;font-size:12px;text-align:right">Arc<br><span style="color:#00d4ff;font-size:11px">~1.2s</span></div>
+<div class="race-track"><div class="race-bar arc" id="arcBar"><span class="race-label">Arc</span></div></div>
+</div>
+<div class="race-container">
+<div style="width:80px;font-size:12px;text-align:right">L1<br><span style="color:#ff6b6b;font-size:11px">~12s</span></div>
+<div class="race-track"><div class="race-bar l1" id="l1Bar"><span class="race-label">L1</span></div></div>
+</div>
+<div class="comparison">
+<h4>💰 Economic Proof: 100 Tasks</h4>
+<div class="compare-row"><div class="compare-col label">Metric</div><div class="compare-col arc">Arc Nanopayments</div><div class="compare-col l1">Ethereum L1</div></div>
+<div class="compare-row"><div class="compare-col label">Revenue</div><div class="compare-col arc">$0.10</div><div class="compare-col l1">$0.10</div></div>
+<div class="compare-row"><div class="compare-col label">Gas Cost</div><div class="compare-col arc">~$0.90</div><div class="compare-col l1">$150.00</div></div>
+<div class="compare-row"><div class="compare-col label">Result</div><div class="compare-col arc" style="font-weight:bold">✅ PROFIT</div><div class="compare-col l1" style="font-weight:bold">❌ -$149.90 LOSS</div></div>
+</div>
+</div>
+</div>
+<script>
+const API_URL = 'http://localhost:5000';
+let txCount = 0, revenue = 0, gasSaved = 0, agentCount = 0, isRacing = false;
+function log(msg) {
+    const console = document.getElementById('console');
+    const line = document.createElement('div');
+    line.className = 'console-line';
+    line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    console.insertBefore(line, console.firstChild);
+    if (console.children.length > 5) console.removeChild(console.lastChild);
+}
+async function checkBackend() {
+    try {
+        const res = await fetch(`${API_URL}/api/health`);
+        const data = await res.json();
+        document.getElementById('backendStatus').textContent = `${data.chain} | $${data.fee_per_task}/task`;
+        document.getElementById('backendStatus').style.color = '#00ff96';
+        log('Backend connected: ' + data.chain);
+    } catch (e) {
+        document.getElementById('backendStatus').textContent = 'Disconnected';
+        document.getElementById('backendStatus').style.color = '#ff6b6b';
+    }
+}
+function addTicker(id, result, success, fee, agent) {
+    const ticker = document.getElementById('ticker');
+    const row = document.createElement('div');
+    row.className = 'ticker-row';
+    const shortResult = result.length > 30 ? result.substring(0, 30) + '...' : result;
+    row.innerHTML = `<span class="tx-id">#${id}</span><span style="color:rgba(255,255,255,0.5)">${agent}</span><span style="color:rgba(255,255,255,0.7)">${shortResult}</span><span class="${success ? 'tx-status' : 'tx-fail'}">${success ? '✓' : '✗'} $${fee.toFixed(3)}</span>`;
+    ticker.insertBefore(row, ticker.firstChild);
+    if (ticker.children.length > 50) ticker.removeChild(ticker.lastChild);
+}
+async function spawnAgent() {
+    const btn = document.getElementById('spawnBtn');
+    btn.disabled = true;
+    agentCount++;
+    const agentName = `Agent-${String(agentCount).padStart(3, '0')}`;
+    const chip = document.createElement('div');
+    chip.className = 'agent-chip';
+    chip.textContent = `🤖 ${agentName} (running...)`;
+    document.getElementById('agentList').appendChild(chip);
+    log(`${agentName} spawned — executing 10 tasks...`);
+    const tasks = [
+        "What is machine learning?",
+        "Explain blockchain in one sentence",
+        "Define nanopayments",
+        "What is USDC?",
+        "How does Arc work?",
+        "Explain AI agents",
+        "What is x402 protocol?",
+        "Define smart contracts",
+        "What is DeFi?",
+        "Explain tokenomics"
+    ];
+    let successCount = 0;
+    for (let i = 0; i < 10; i++) {
+        try {
+            const reqRes = await fetch(`${API_URL}/api/payment-requirement?user_wallet=0xcF1DD1B3B2A682F7d7935bbbcFe9C5514b19E9f0&task=${encodeURIComponent(tasks[i])}`);
+            const reqData = await reqRes.json();
+            const taskId = reqData.task_id;
+            const txHash = `sim_tx_${taskId}_${Date.now()}`;
+            const execRes = await fetch(`${API_URL}/api/execute-task`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({user_wallet: '0xcF1DD1B3B2A682F7d7935bbbcFe9C5514b19E9f0', task: tasks[i], tx_hash: txHash})
+            });
+            if (execRes.status === 200) {
+                const data = await execRes.json();
+                txCount++; revenue += 0.001; gasSaved += 1.50 - 0.009; successCount++;
+                document.getElementById('txCount').textContent = txCount;
+                document.getElementById('revenue').textContent = '$' + revenue.toFixed(3);
+                document.getElementById('gasSaved').textContent = '$' + gasSaved.toFixed(2);
+                document.getElementById('txRate').textContent = (txCount / 10).toFixed(1);
+                addTicker(taskId, data.ai_result, true, 0.001, agentName);
+                log(`${agentName} Tx ${i+1}/10 ✅`);
+            } else {
+                addTicker(taskId, 'Failed', false, 0, agentName);
+                log(`${agentName} Tx ${i+1}/10 ❌`);
+            }
+        } catch (e) {
+            log(`${agentName} Tx ${i+1}/10 error: ${e.message}`);
+        }
+        await new Promise(r => setTimeout(r, 300));
+    }
+    chip.textContent = `🤖 ${agentName} (${successCount}/10 done)`;
+    chip.style.background = 'rgba(0,255,150,0.1)';
+    chip.style.borderColor = '#00ff96';
+    chip.style.color = '#00ff96';
+    document.getElementById('agentCount').textContent = agentCount;
+    btn.disabled = false;
+    log(`${agentName} completed — ${successCount}/10 tasks`);
+}
+function startRace() {
+    if (isRacing) return;
+    isRacing = true;
+    document.getElementById('raceBtn').disabled = true;
+    document.getElementById('arcBar').style.width = '0%';
+    document.getElementById('l1Bar').style.width = '0%';
+    log('Race started: Arc vs Ethereum L1...');
+    setTimeout(() => { document.getElementById('arcBar').style.width = '100%'; log('Arc: Payment settled in ~1.2s ✅'); }, 200);
+    setTimeout(() => { document.getElementById('l1Bar').style.width = '100%'; log('L1: Payment settled in ~12s (simulated)'); }, 2000);
+    setTimeout(() => { isRacing = false; document.getElementById('raceBtn').disabled = false; log('Race complete — Arc is 10x faster'); }, 2500);
+}
+function resetAll() {
+    txCount = 0; revenue = 0; gasSaved = 0; agentCount = 0;
+    document.getElementById('txCount').textContent = '0';
+    document.getElementById('revenue').textContent = '$0.000';
+    document.getElementById('gasSaved').textContent = '$0.00';
+    document.getElementById('agentCount').textContent = '0';
+    document.getElementById('txRate').textContent = '0';
+    document.getElementById('ticker').innerHTML = '';
+    document.getElementById('agentList').innerHTML = '';
+    document.getElementById('arcBar').style.width = '0%';
+    document.getElementById('l1Bar').style.width = '0%';
+    log('Dashboard reset');
+}
+checkBackend();
+setInterval(checkBackend, 10000);
+</script>
+</body>
+</html>

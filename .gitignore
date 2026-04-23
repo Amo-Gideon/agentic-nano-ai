@@ -1,0 +1,24 @@
+# Environment variables
+.env
+
+# Python virtual environment
+myenv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Transaction hashes (generated at runtime)
+tx_hashes.txt
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

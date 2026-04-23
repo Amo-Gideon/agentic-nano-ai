@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Prime — Multi-Agent Orchestration</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a1a;color:#fff;min-height:100vh}
+.header{background:linear-gradient(135deg,#667eea,#764ba2);padding:30px;text-align:center}
+.header h1{font-size:42px;margin-bottom:10px}
+.header p{color:rgba(255,255,255,0.8);font-size:16px}
+.badge{display:inline-block;background:rgba(0,212,255,0.2);border:1px solid #00d4ff;color:#00d4ff;padding:6px 16px;border-radius:20px;font-size:12px;margin:10px 5px}
+.main{max-width:1000px;margin:0 auto;padding:30px}
+.task-input{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:30px;margin-bottom:30px}
+.task-input h3{color:#00d4ff;margin-bottom:20px;font-size:18px}
+input{width:100%;padding:16px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;color:#fff;font-size:16px;margin-bottom:15px}
+input:focus{outline:none;border-color:#00d4ff}
+.btn{width:100%;padding:18px;border:none;border-radius:12px;font-size:18px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#00d4ff,#7b2cbf);color:#fff;transition:all 0.3s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,212,255,0.3)}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.orchestrator{display:none;margin-bottom:30px}
+.orchestrator.show{display:block}
+.agent-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;margin-bottom:20px;position:relative;overflow:hidden}
+.agent-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#00d4ff,#7b2cbf)}
+.agent-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.agent-name{font-size:20px;font-weight:700;color:#00d4ff}
+.agent-fee{background:rgba(0,212,255,0.15);color:#00d4ff;padding:4px 12px;border-radius:20px;font-size:13px}
+.agent-status{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:10px}
+.agent-output{background:rgba(0,0,0,0.3);padding:16px;border-radius:10px;font-size:14px;line-height:1.7;color:rgba(255,255,255,0.9);border-left:3px solid #00ff96}
+.agent-loading{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.6);font-size:14px}
+.spinner{width:20px;height:20px;border:2px solid rgba(255,255,255,0.2);border-top-color:#00d4ff;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.final-output{background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(123,44,191,0.1));border:2px solid rgba(0,212,255,0.3);border-radius:16px;padding:30px;margin-top:30px}
+.final-output h3{color:#00d4ff;margin-bottom:20px;font-size:22px}
+.final-text{font-size:16px;line-height:1.8;color:#fff}
+.economics{background:rgba(255,255,255,0.03);border-radius:16px;padding:24px;margin-top:30px}
+.economics h3{color:#00d4ff;margin-bottom:20px}
+.econ-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.econ-item{padding:15px;background:rgba(255,255,255,0.05);border-radius:10px}
+.econ-label{font-size:12px;color:rgba(255,255,255,0.5);text-transform:uppercase}
+.econ-value{font-size:24px;font-weight:700;color:#00d4ff;margin-top:5px}
+.econ-compare{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:15px;text-align:center;font-size:13px}
+.econ-arc{background:rgba(0,212,255,0.1);color:#00d4ff;padding:12px;border-radius:8px}
+.econ-l1{background:rgba(255,50,50,0.1);color:#ff6b6b;padding:12px;border-radius:8px}
+.econ-mid{color:rgba(255,255,255,0.6);padding:12px}
+</style>
+<base target="_blank">
+</head>
+<body>
+<div class="header">
+<h1>🤖 Agent Prime</h1>
+<p>Multi-Agent Orchestration with Per-Task Nanopayments</p>
+<div>
+<span class="badge">🧮 Usage-Based Compute Billing</span>
+<span class="badge">🤖 Agent-to-Agent Payment Loop</span>
+</div>
+</div>
+<div class="main">
+<div class="task-input">
+<h3>📝 Enter a Complex Task</h3>
+<input type="text" id="taskInput" value="Write a blog post about AI agents" placeholder="e.g., Write a blog post about blockchain technology">
+<button class="btn" id="runBtn" onclick="runOrchestrator()">🚀 Hire 3 Agents ($0.003 USDC)</button>
+</div>
+<div class="orchestrator" id="orchestrator">
+<div class="agent-card" id="agent1">
+<div class="agent-header"><div class="agent-name">🔍 Research Agent</div><div class="agent-fee">$0.001 USDC</div></div>
+<div class="agent-status">Gathering facts...</div>
+<div class="agent-loading" id="loading1"><div class="spinner"></div> Executing research task...</div>
+<div class="agent-output" id="output1" style="display:none"></div>
+</div>
+<div class="agent-card" id="agent2">
+<div class="agent-header"><div class="agent-name">✍️ Writer Agent</div><div class="agent-fee">$0.001 USDC</div></div>
+<div class="agent-status">Waiting for research...</div>
+<div class="agent-loading" id="loading2" style="display:none"><div class="spinner"></div> Drafting content...</div>
+<div class="agent-output" id="output2" style="display:none"></div>
+</div>
+<div class="agent-card" id="agent3">
+<div class="agent-header"><div class="agent-name">🎯 Editor Agent</div><div class="agent-fee">$0.001 USDC</div></div>
+<div class="agent-status">Waiting for draft...</div>
+<div class="agent-loading" id="loading3" style="display:none"><div class="spinner"></div> Polishing final text...</div>
+<div class="agent-output" id="output3" style="display:none"></div>
+</div>
+<div class="final-output" id="finalOutput" style="display:none">
+<h3>📄 Final Deliverable (Combined by Agent Prime)</h3>
+<div class="final-text" id="finalText"></div>
+</div>
+<div class="economics" id="economics" style="display:none">
+<h3>💰 Economic Proof: 3-Agent Workflow</h3>
+<div class="econ-grid">
+<div class="econ-item"><div class="econ-label">Total Fee</div><div class="econ-value">$0.003</div></div>
+<div class="econ-item"><div class="econ-label">Arc Gas (est)</div><div class="econ-value">~$0.027</div></div>
+</div>
+<div class="econ-compare">
+<div class="econ-arc"><strong>Arc</strong><br>3 txs × $0.009<br>✅ Viable</div>
+<div class="econ-mid">vs</div>
+<div class="econ-l1"><strong>Ethereum L1</strong><br>3 txs × $1.50<br>❌ $4.50 gas<br>for $0.003 revenue</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+const API_URL = 'http://localhost:5000';
+const WALLET = '0xcF1DD1B3B2A682F7d7935bbbcFe9C5514b19E9f0';
+
+async function runOrchestrator() {
+    const btn = document.getElementById('runBtn');
+    const task = document.getElementById('taskInput').value.trim();
+    if (!task) return;
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Hiring Agents...';
+    document.getElementById('orchestrator').classList.add('show');
+    ['output1','output2','output3','finalOutput','economics'].forEach(id => {
+        document.getElementById(id).style.display = 'none';
+    });
+    ['loading1','loading2','loading3'].forEach(id => {
+        document.getElementById(id).style.display = 'flex';
+    });
+    document.querySelector('#agent1 .agent-status').textContent = 'Executing research...';
+    document.querySelector('#agent2 .agent-status').textContent = 'Waiting for research...';
+    document.querySelector('#agent3 .agent-status').textContent = 'Waiting for draft...';
+    try {
+        const simulatedTx = `orch_tx_${Date.now()}`;
+        const res = await fetch(`${API_URL}/api/complex-task`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({user_wallet: WALLET, task: task, tx_hash: simulatedTx})
+        });
+        const data = await res.json();
+        if (res.status === 200) {
+            document.getElementById('loading1').style.display = 'none';
+            document.getElementById('output1').style.display = 'block';
+            document.getElementById('output1').textContent = data.subtasks[0].output;
+            document.querySelector('#agent1 .agent-status').textContent = '✅ Complete';
+            document.querySelector('#agent1 .agent-status').style.color = '#00ff96';
+            document.getElementById('loading2').style.display = 'none';
+            document.getElementById('output2').style.display = 'block';
+            document.getElementById('output2').textContent = data.subtasks[1].output;
+            document.querySelector('#agent2 .agent-status').textContent = '✅ Complete';
+            document.querySelector('#agent2 .agent-status').style.color = '#00ff96';
+            document.getElementById('loading3').style.display = 'none';
+            document.getElementById('output3').style.display = 'block';
+            document.getElementById('output3').textContent = data.subtasks[2].output;
+            document.querySelector('#agent3 .agent-status').textContent = '✅ Complete';
+            document.querySelector('#agent3 .agent-status').style.color = '#00ff96';
+            document.getElementById('finalOutput').style.display = 'block';
+            document.getElementById('finalText').textContent = data.final_output;
+            document.getElementById('economics').style.display = 'block';
+        } else {
+            alert('Error: ' + (data.detail?.message || 'Failed'));
+        }
+    } catch (e) {
+        alert('Error: ' + e.message);
+    }
+    btn.disabled = false;
+    btn.innerHTML = '🚀 Hire 3 Agents ($0.003 USDC)';
+}
+</script>
+</body>
+</html>
